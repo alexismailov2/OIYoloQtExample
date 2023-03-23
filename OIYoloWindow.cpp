@@ -14,7 +14,7 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
     auto widget = new QWidget;
     setCentralWidget(widget);
 
-    auto selectModelLabel = new QLabel();
+    auto selectModelLabel = new QLabel("../OIYolo/assets/yolov8s.param");
     auto selectModelButton = new QPushButton(tr("Select NCNN model(*.param)"));
     connect(selectModelButton, &QPushButton::clicked, [=]() {
         QString file = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this,
@@ -26,7 +26,7 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
         }
     });
 
-    auto selectWeightsLabel = new QLabel();
+    auto selectWeightsLabel = new QLabel("../OIYolo/assets/yolov8s.bin");
     auto selectWeightsButton = new QPushButton(tr("Select NCNN weights(*.bin)"));
     connect(selectWeightsButton, &QPushButton::clicked, [=]() {
         QString file = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this,
@@ -38,7 +38,7 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
         }
     });
 
-    auto selectClassesLabel = new QLabel();
+    auto selectClassesLabel = new QLabel("../OIYolo/assets/yolov8s.classes");
     auto selectClassesButton = new QPushButton(tr("Select NCNN weights(*.classes)"));
     connect(selectClassesButton, &QPushButton::clicked, [=]() {
         QString file = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this,
@@ -50,7 +50,7 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
         }
     });
 
-    auto selectPictureLabel = new QLabel();
+    auto selectPictureLabel = new QLabel("../OIYolo/assets/parking.jpg");
     auto selectPictureButton = new QPushButton(tr("Select picture(*.jpg"));
     auto pictureLabel = new QLabel();
     connect(selectPictureButton, &QPushButton::clicked, [=]() {
@@ -63,7 +63,11 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
     });
     auto runYoloButton = new QPushButton(tr("Run detection"));
     connect(runYoloButton, &QPushButton::clicked, [=]() {
-        auto yoloV8 = OIYolo::V8(selectWeightsLabel->text().toStdString(),
+        if (!pictureLabel->pixmap())
+        {
+          pictureLabel->setPixmap(QPixmap::fromImage(QImage(selectPictureLabel->text())));
+        }
+        auto yoloV8 = OIYolo::V8(selectModelLabel->text().toStdString(),
                                  selectWeightsLabel->text().toStdString(),
                                  selectClassesLabel->text().toStdString(),
                                  OIYolo::Size{640, 640},
@@ -74,6 +78,7 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
                 pictureLabel->pixmap()->width(),
                 pictureLabel->pixmap()->height(),
                 [](std::string const&) { return true; },
+                true,
                 true);
         if (!predictions.empty())
         {
@@ -86,6 +91,8 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
                 ss << ", width: " << item.boundingBox.width;
                 ss << ", height: " << item.boundingBox.height;
                 ss << ", confidence: " << item.confidence << std::endl;
+
+                //TODO: Needed to be put draw of rectangles
             }
             QMessageBox::about(this, tr("OIYolo detected"), QString::fromStdString(ss.str()));
         }
@@ -100,8 +107,8 @@ OIYoloWindow::OIYoloWindow(bool isFullscreen, QWidget *parent)
     layout->addWidget(selectClassesLabel);
     layout->addWidget(selectPictureButton);
     layout->addWidget(selectPictureLabel);
-    layout->addWidget(pictureLabel);
     layout->addWidget(runYoloButton);
+    layout->addWidget(pictureLabel);
 
     widget->setLayout(layout);
 
