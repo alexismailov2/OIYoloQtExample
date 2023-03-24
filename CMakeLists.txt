@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(OIYoloQtExample)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 
@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME}
         ${SOURCE})
 
 add_subdirectory(OIYolo)
-add_dependencies(${PROJECT_NAME} NcnnYolov8_test1)
+#add_dependencies(${PROJECT_NAME} NcnnYolov8_test1)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
